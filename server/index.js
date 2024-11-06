@@ -1,8 +1,21 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const dotenv = require('dotenv');
+const userRoutes = require('./routes/userRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const auditLogRoutes = require('./routes/auditLogRoutes');
+require('./models');
 
-app.get('/', (req, res) => {
-    res.send('hello world')
-})
+dotenv.config();
 
-app.listen(3000)
+const app = express();
+app.use(express.json());
+
+// Routes
+app.use('/api', userRoutes);
+app.use('/api', taskRoutes);
+app.use('/api', auditLogRoutes);
+
+const port = process.env.PORT || 3001;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
