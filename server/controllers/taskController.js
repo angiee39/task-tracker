@@ -1,14 +1,13 @@
-const pool = require('../config/db');
+const { Task } = require('../models');
 
 // Create a new task
 exports.createTask = async (req, res) => {
     const { title, description, status, priority, due_date, created_by, assigned_to } = req.body;
     try {
-        const result = await pool.query(
-            'INSERT INTO tasks (title, description, status, priority, due_date, created_by, assigned_to) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-            [title, description, status, priority, due_date, created_by, assigned_to]
-        );
-        res.status(201).json(result.rows[0]);
+        const newTask = await Task.create({
+            title, description, status, priority, due_date, created_by, assigned_to
+        })
+        res.status(201).json(newTask);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -17,8 +16,8 @@ exports.createTask = async (req, res) => {
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM tasks');
-        res.status(200).json(result.rows);
+        const tasks = await Task.findAll();
+        res.status(200).json(tasks);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -28,9 +27,9 @@ exports.getAllTasks = async (req, res) => {
 exports.getTaskById = async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await pool.query('SELECT * FROM tasks WHERE id = $1', [id]);
-        if (result.rows.length > 0) {
-            res.status(200).json(result.rows[0]);
+        const task = await Task.findByPk(id);
+        if (task) {
+            res.status(200).json(task);
         } else {
             res.status(404).json({ error: 'Task not found' });
         }
@@ -44,11 +43,13 @@ exports.updateTask = async (req, res) => {
     const { id } = req.params;
     const { title, description, status, priority, due_date, assigned_to } = req.body;
     try {
-        const result = await pool.query(
-            'UPDATE tasks SET title = $1, description = $2, status = $3, priority = $4, due_date = $5, assigned_to = $6, updated_at = NOW() WHERE id = $7 RETURNING *',
-            [title, description, status, priority, due_date, assigned_to, id]
-        );
-        res.status(200).json(result.rows[0]);
+        const [updated] = await Task.update({ title, description, status, priority, due_date, assigned_to }, { where: { id } });
+        if (updated) {
+            const updatedTask = await Task.findByPk(id);
+            res.status(200).json(updatedTask);
+        } else {
+            res.status(404).json({ error: 'Task not found' });
+        }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -58,8 +59,12 @@ exports.updateTask = async (req, res) => {
 exports.deleteTask = async (req, res) => {
     const { id } = req.params;
     try {
-        await pool.query('DELETE FROM tasks WHERE id = $1', [id]);
-        res.status(204).send();
+        const deleted = await Task.destroy({ where: { id } });
+        if (deleted) {
+            res.status(204).send();
+        } else {
+            res.status(404).json({ error: 'Task not found' });
+        }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
