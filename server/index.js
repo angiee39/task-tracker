@@ -1,5 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
+
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
@@ -10,6 +12,10 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors({
+    origin: 'http://localhost:3000', // Replace with the origin of your front-end
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+}));
 
 // Routes
 app.use('/api', userRoutes);

@@ -13,7 +13,7 @@ exports.createTask = async (req, res) => {
     }
 };
 
-// Get all tasks
+// Get all components
 exports.getAllTasks = async (req, res) => {
     try {
         const tasks = await Task.findAll();

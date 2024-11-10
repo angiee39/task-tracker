@@ -11,7 +11,7 @@ const Task = sequelize.define('Task', {
         type: DataTypes.TEXT,
     },
     status: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
     },
     priority: {
         type: DataTypes.INTEGER,
