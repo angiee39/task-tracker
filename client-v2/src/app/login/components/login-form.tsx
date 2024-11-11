@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/context/UserContext';
+import { useUser } from '@/context/user-context';
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -19,6 +19,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {loginUser} from "../../../services/auth-service";
 
 const FormSchema = z.object({
     email: z.string().min(2, {
@@ -42,31 +43,19 @@ export function LoginForm() {
     })
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data)
         handleLogin(data)
-        toast({
-            title: "You submitted the following values:"
-        })
     }
 
     const handleLogin = async (credentials) => {
         try {
-            const res = await fetch('http://localhost:3003/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(credentials),
-                credentials: 'include', // To include cookies in the request
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                setUser(data.user);
-                localStorage.setItem('user', JSON.stringify(data.user));
+            const res = await loginUser(credentials);
+            if (res.isSuccess) {
+                setUser(res.data.user);
+                localStorage.setItem('user', JSON.stringify(res.data.user));
                 router.push('/tasks');
+                // Success toast msg
             } else {
-                // Handle error
+                // Error toast msg
             }
         } catch (error) {
             console.log(error)

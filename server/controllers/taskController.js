@@ -1,12 +1,23 @@
-const { Task } = require('../models');
+const { Task, AuditLog } = require('../models');
 
 // Create a new task
 exports.createTask = async (req, res) => {
     const { title, description, status, priority, due_date, created_by, assigned_to } = req.body;
+    const modifiedBy = req.user.id;
+
     try {
         const newTask = await Task.create({
             title, description, status, priority, due_date, created_by, assigned_to
         })
+
+        // Add an audit log entry
+        await AuditLog.create({
+            action: 'Task Created',
+            task_id: newTask.id,
+            user_id: modifiedBy,  // Assuming `created_by` refers to the user creating the task
+            timestamp: new Date()
+        });
+
         res.status(201).json(newTask);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -42,10 +53,39 @@ exports.getTaskById = async (req, res) => {
 exports.updateTask = async (req, res) => {
     const { id } = req.params;
     const { title, description, status, priority, due_date, assigned_to } = req.body;
+    const modifiedBy = req.user.id;
+
     try {
+        const existingTask = await Task.findByPk(id);
+        if (!existingTask) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+
+        // Track which fields are being updated
+        let updatedFields = [];
+
+        if (title && title !== existingTask.title) updatedFields.push('title');
+        if (description && description !== existingTask.description) updatedFields.push('description');
+        if (status && status !== existingTask.status) updatedFields.push('status');
+        if (priority && priority !== existingTask.priority) updatedFields.push('priority');
+        if (due_date && due_date !== existingTask.due_date) updatedFields.push('due_date');
+        if (assigned_to && assigned_to !== existingTask.assigned_to) updatedFields.push('assigned_to');
+
         const [updated] = await Task.update({ title, description, status, priority, due_date, assigned_to }, { where: { id } });
+
         if (updated) {
             const updatedTask = await Task.findByPk(id);
+
+            // Add an audit log entry
+            if (updatedFields.length > 0) {
+                await AuditLog.create({
+                    action: `Task Updated: ${updatedFields.join(', ')}`,
+                    task_id: id,
+                    user_id: modifiedBy,
+                    timestamp: new Date()
+                });
+            }
+
             res.status(200).json(updatedTask);
         } else {
             res.status(404).json({ error: 'Task not found' });
@@ -58,9 +98,17 @@ exports.updateTask = async (req, res) => {
 // Delete a task
 exports.deleteTask = async (req, res) => {
     const { id } = req.params;
+    const modifiedBy = req.user.id;
     try {
         const deleted = await Task.destroy({ where: { id } });
         if (deleted) {
+            // Add an audit log entry
+            await AuditLog.create({
+                action: 'Task Deleted',
+                task_id: id,
+                user_id: modifiedBy,
+                timestamp: new Date()
+            });
             res.status(204).send();
         } else {
             res.status(404).json({ error: 'Task not found' });

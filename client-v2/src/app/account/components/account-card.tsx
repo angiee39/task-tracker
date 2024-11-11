@@ -21,34 +21,28 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import {useUser} from "@/context/UserContext";
+import {useUser} from "@/context/user-context";
 import {Checkbox} from "@/components/ui/checkbox";
 import {useRouter} from "next/navigation";
+import {logoutUser} from "../../../services/auth-service";
 
 export function AccountCard() {
     const { setUser, user } = useUser();
     const router = useRouter()
 
     const handleLogout = async () => {
-
-
         try {
-            const res = await fetch('http://localhost:3003/api/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            if (res.ok) {
+            const res = await logoutUser();
+            if (res.isSuccess) {
                 setUser(null);
                 localStorage.removeItem('user');
                 router.push('/login');
+                // Success toast
             } else {
-                // Handle error
+                // Error toast
             }
         } catch (error) {
-            console.log(error)
+            // Error toast
         }
     };
 
