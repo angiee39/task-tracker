@@ -3,12 +3,20 @@
 import {
     ColumnDef,
     SortingState,
+    VisibilityState,
     flexRender,
     getCoreRowModel,
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable, ColumnFiltersState, getFilteredRowModel,
 } from "@tanstack/react-table"
+
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 import {
     Table,
@@ -37,6 +45,9 @@ export function DataTable<TData, TValue>({
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
         []
     )
+    const [columnVisibility, setColumnVisibility] =
+        useState<VisibilityState>({})
+
     const table = useReactTable({
         data,
         columns,
@@ -46,51 +57,87 @@ export function DataTable<TData, TValue>({
         getSortedRowModel: getSortedRowModel(),
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
+        onColumnVisibilityChange: setColumnVisibility,
         state: {
             sorting,
             columnFilters,
+            columnVisibility
         },
     })
 
     return (
         <div>
-            <div className="flex items-center py-4">
-                {/*Title Filter*/}
-                <Input
-                    placeholder="Filter tasks by title..."
-                    value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("title")?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-sm"
-                />
-                {/* Status Filter */}
-                <select
-                    className="max-w-sm border border-gray-300 rounded-md px-3 py-2"
-                    value={(table.getColumn("status")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("status")?.setFilterValue(event.target.value)
-                    }
-                >
-                    <option value="">Filter by status</option>
-                    <option value="todo">Todo</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                </select>
+            <div className="flex items-center py-4 justify-between">
+                <div className="flex gap-1">
+                    {/*Title Filter*/}
+                    <Input
+                        placeholder="Filter tasks by title..."
+                        value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+                        onChange={(event) =>
+                            table.getColumn("title")?.setFilterValue(event.target.value)
+                        }
+                        className=""
+                    />
+                    {/*Visibility*/}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="ml-auto">
+                                Columns
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {table
+                                .getAllColumns()
+                                .filter(
+                                    (column) => column.getCanHide()
+                                )
+                                .map((column) => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={column.id}
+                                            className="capitalize"
+                                            checked={column.getIsVisible()}
+                                            onCheckedChange={(value) =>
+                                                column.toggleVisibility(!!value)
+                                            }
+                                        >
+                                            {column.id}
+                                        </DropdownMenuCheckboxItem>
+                                    )
+                                })}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                <div className="flex gap-1">
 
-                {/* Priority Filter */}
-                <select
-                    className="max-w-sm border border-gray-300 rounded-md px-3 py-2"
-                    value={(table.getColumn("priority")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("priority")?.setFilterValue(event.target.value)
-                    }
-                >
-                    <option value="">Filter by priority</option>
-                    <option value="1">Priority 1</option>
-                    <option value="2">Priority 2</option>
-                    <option value="3">Priority 3</option>
-                </select>
+                    {/* Status Filter */}
+                    <select
+                        className="max-w-sm border border-gray-300 rounded-md px-3 py-2"
+                        value={(table.getColumn("status")?.getFilterValue() as string) ?? ""}
+                        onChange={(event) =>
+                            table.getColumn("status")?.setFilterValue(event.target.value)
+                        }
+                    >
+                        <option value="">Filter by status</option>
+                        <option value="1">Todo</option>
+                        <option value="2">In Progress</option>
+                        <option value="3">Completed</option>
+                    </select>
+
+                    {/* Priority Filter */}
+                    <select
+                        className="max-w-sm border border-gray-300 rounded-md px-3 py-2"
+                        value={(table.getColumn("priority")?.getFilterValue() as string) ?? ""}
+                        onChange={(event) =>
+                            table.getColumn("priority")?.setFilterValue(event.target.value)
+                        }
+                    >
+                        <option value="">Filter by priority</option>
+                        <option value="1">High</option>
+                        <option value="2">Medium</option>
+                        <option value="3">Low</option>
+                    </select>
+                </div>
             </div>
             <div className="rounded-md border">
                 <Table>

@@ -1,12 +1,13 @@
 "use client"
 
+import { DayPicker } from 'react-day-picker';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { format } from "date-fns"
 
 import { toast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
+import {Button, buttonVariants} from "@/components/ui/button"
 import {
     Form,
     FormControl,
@@ -30,6 +31,7 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {cn} from "@/lib/utils";
 import {Calendar, CalendarIcon} from "lucide-react";
 import {Textarea} from "@/components/ui/textarea";
+import {dayPickerClassNames} from "@/lib/day-picker-class-names";
 
 const FormSchema = z.object({
     title: z.string().min(2, {
@@ -193,14 +195,14 @@ export function TaskCreateForm() {
                                         </FormControl>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
+                                        <DayPicker
                                             mode="single"
                                             selected={field.value ? new Date(field.value) : undefined}
                                             onSelect={field.onChange}
-                                            disabled={(date) =>
-                                                date > new Date() || date < new Date("1900-01-01")
+                                            disabled={(date) => date < new Date("1900-01-01") || date < new Date()
                                             }
-                                            initialfocus={false}
+                                            initialFocus={false}
+                                            classNames={dayPickerClassNames}
                                         />
                                     </PopoverContent>
                                 </Popover>

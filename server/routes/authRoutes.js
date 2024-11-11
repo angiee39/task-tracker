@@ -4,5 +4,6 @@ const router = express.Router();
 
 // POST /api/login - Login endpoint
 router.post('/login', authController.login);
+router.post('/logout', authController.logout);
 
 module.exports = router;

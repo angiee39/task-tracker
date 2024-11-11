@@ -15,7 +15,7 @@ import {
 import {LoginForm} from "./login-form";
 import {SignupForm} from "./signup-form";
 
-export function LoginPage() {
+export function LoginSignupTab() {
     return (
         <Tabs defaultValue="login" className="w-[400px]">
             <TabsList className="grid w-full grid-cols-2">

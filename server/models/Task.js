@@ -16,6 +16,18 @@ const Task = sequelize.define('Task', {
     priority: {
         type: DataTypes.INTEGER,
     },
+    createdAt: {
+        type: DataTypes.DATE,
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+    },
+    created_by: {
+        type: DataTypes.INTEGER,
+    },
+    assigned_to: {
+        type: DataTypes.INTEGER,
+    },
     due_date: {
         type: DataTypes.DATE,
     },

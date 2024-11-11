@@ -16,6 +16,10 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         defaultValue: 'user',
     },
+    notification: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+    },
 });
 
 // Hash the password before saving it to the database

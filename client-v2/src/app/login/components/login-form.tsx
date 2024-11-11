@@ -1,5 +1,8 @@
 "use client"
 
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
+
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -27,6 +30,9 @@ const FormSchema = z.object({
 })
 
 export function LoginForm() {
+    const router = useRouter();
+    const { setUser } = useUser();
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -37,10 +43,35 @@ export function LoginForm() {
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data)
+        handleLogin(data)
         toast({
             title: "You submitted the following values:"
         })
     }
+
+    const handleLogin = async (credentials) => {
+        try {
+            const res = await fetch('http://localhost:3003/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(credentials),
+                credentials: 'include', // To include cookies in the request
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setUser(data.user);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                router.push('/tasks');
+            } else {
+                // Handle error
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    };
 
     return (
         <Form {...form}>

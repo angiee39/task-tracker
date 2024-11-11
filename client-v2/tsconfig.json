@@ -22,7 +22,8 @@
       "@/styles/*": ["styles/*"],
       "@/components/*": ["components/*"],
       "@/lib/*": ["lib/*"],
-      "@/hooks/*": ["hooks/*"]
+      "@/hooks/*": ["hooks/*"],
+      "@/context/*": ["context/*"]
     },
     "baseUrl": "src/"
   },

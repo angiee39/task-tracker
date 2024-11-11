@@ -8,6 +8,7 @@ async function getData(): Promise<Task[]> {
 }
 
 export default async function TasksListView() {
+
     const data = await getData()
 
     return (

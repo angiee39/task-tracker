@@ -13,6 +13,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {format, parseISO} from "date-fns";
 
 
 // This type is used to define the shape of our data.
@@ -34,6 +35,20 @@ export const columns: ColumnDef<Task>[] = [
     {
         accessorKey: "status",
         header: "Status",
+        filterFn: (row, columnId, filterValue) => {
+            const cellValue = row.getValue(columnId);
+            return filterValue ? cellValue === Number(filterValue) : true;
+        },
+        cell: ({ row }) => {
+            const values = {
+                1: "To Do",
+                2: "In Progress",
+                3: "Completed"
+            };
+            const value = row.getValue("status");
+            return values[value] || "None"; // Fallback to "Unknown" if the value isn't 1, 2, or 3
+        }
+
     },
     {
         accessorKey: "priority",
@@ -52,6 +67,15 @@ export const columns: ColumnDef<Task>[] = [
             const cellValue = row.getValue(columnId);
             return filterValue ? cellValue === Number(filterValue) : true;
         },
+        cell: ({ row }) => {
+            const values = {
+                1: "High",
+                2: "Medium",
+                3: "Low"
+            };
+            const value = row.getValue("priority");
+            return values[value] || "None"; // Fallback to "Unknown" if the value isn't 1, 2, or 3
+        }
     },
     {
         accessorKey: "due_date",
@@ -66,6 +90,11 @@ export const columns: ColumnDef<Task>[] = [
                 </Button>
             )
         },
+        cell: ({ row }) => {
+            const value: any = row.getValue("due_date");
+            const date = parseISO(value);
+            return format(date, "dd/MM/yy HH:mm");
+        }
     },
     {
         id: "actions",
