@@ -7,6 +7,7 @@ const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
+const notificationRoutes = require('./routes/notificationsRoute');
 require('./models');
 
 dotenv.config();
@@ -26,6 +27,10 @@ app.use('/api', userRoutes);
 app.use('/api', authRoutes);
 app.use('/api', taskRoutes);
 app.use('/api', auditLogRoutes);
+app.use('/api', notificationRoutes);
+
+// Notifications cron job
+require('./jobs/taskNotificationCron');
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => {

@@ -33,6 +33,7 @@ import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {updateUser} from "../../../services/user-service";
+import OneSignal from "react-onesignal";
 
 const FormSchema = z.object({
     id: z.number(),
@@ -55,9 +56,9 @@ export function AccountCard() {
     })
 
     useEffect(() => {
-        form.setValue('id', user?.id);
-        form.setValue('name', user?.name);
-        form.setValue('notification', user?.notification);
+        form.setValue('id', user?.id || 0);
+        form.setValue('name', user?.name || "");
+        form.setValue('notification', user?.notification || false);
     }, [user, form]);
 
 
@@ -65,6 +66,8 @@ export function AccountCard() {
         try {
             const res = await logoutUser();
             if (res.isSuccess) {
+                // Remove one signal external ID to stop sending notifications
+                await OneSignal.logout()
                 setUser(null);
                 router.push('/login');
                 toast({

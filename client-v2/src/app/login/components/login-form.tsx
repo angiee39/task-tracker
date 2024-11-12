@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import {loginUser} from "../../../services/auth-service";
+import OneSignal from "react-onesignal";
 
 const FormSchema = z.object({
     email: z.string().min(2, {
@@ -49,6 +50,8 @@ export function LoginForm() {
         try {
             const res = await loginUser(credentials);
             if (res.isSuccess) {
+                // Saving one signal external ID to send notifications to user
+                await OneSignal.login(res.data.user.id.toString());
                 setUser(res.data.user);
                 localStorage.setItem('user', JSON.stringify(res.data.user));
                 router.push('/tasks');
