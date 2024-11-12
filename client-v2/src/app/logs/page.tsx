@@ -1,9 +1,10 @@
 import React from 'react';
+import AuditLogsListView from "./components/logs-list-view";
 
 const Logs = () => {
     return (
         <div>
-            Logs Page
+            <AuditLogsListView />
         </div>
     );
 };

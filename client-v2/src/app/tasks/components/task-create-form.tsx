@@ -94,21 +94,29 @@ export function TaskCreateForm() {
     }, [user, form]);
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log('data: ', data);
         handleCreate(data);
     }
 
     const handleCreate = async (formData: any) => {
-        const result = await createTask(formData);
-        if (result.isSuccess) {
-            // Success toast msg
-            router.push('/tasks')
+        try {
+            const result = await createTask(formData);
+            if (result.isSuccess) {
+                // Success toast msg
+                router.push('/tasks')
+                toast({
+                    title: "Task created successfully.",
+                })
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "There was an error creating task.",
+                })
+            }
+        } catch (error) {
+            console.error(error);
             toast({
-                description: "Task created successfully.",
-            })
-        } else {
-            toast({
-                description: "There was an error creating task.",
+                variant: "destructive",
+                title: "There was an error creating task.",
             })
         }
     };
@@ -152,7 +160,7 @@ export function TaskCreateForm() {
                                 <FormLabel>Status</FormLabel>
                                 <FormControl>
                                     <Select
-                                        onValueChange={field.onChange}
+                                        onValueChange={(value) => field.onChange(Number(value))}
                                         value={field.value.toString()}
                                     >
                                         <SelectTrigger className="w-[180px]">
@@ -181,7 +189,7 @@ export function TaskCreateForm() {
                                 <FormLabel>Priority</FormLabel>
                                 <FormControl>
                                     <Select
-                                        onValueChange={field.onChange}
+                                        onValueChange={(value) => field.onChange(Number(value))}
                                         value={field.value.toString()}
                                     >
                                         <SelectTrigger className="w-[180px]">

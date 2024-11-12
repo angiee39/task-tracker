@@ -53,17 +53,19 @@ export function LoginForm() {
                 localStorage.setItem('user', JSON.stringify(res.data.user));
                 router.push('/tasks');
                 toast({
-                    description: "You have successfully logged in.",
+                    title: "You have successfully logged in.",
                 })
             } else {
                 toast({
-                    description: "There was an error logging in.",
+                    variant: "destructive",
+                    title: "There was an error logging in.",
                 })
             }
         } catch (error) {
             console.log(error)
             toast({
-                description: "There was an error logging in.",
+                variant: "destructive",
+                title: "There was an error logging in.",
             })
         }
     };

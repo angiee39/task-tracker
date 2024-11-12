@@ -12,7 +12,7 @@ exports.createTask = async (req, res) => {
 
         // Add an audit log entry
         await AuditLog.create({
-            action: 'Task Created',
+            action: `Task(${newTask.id}) Created`,
             task_id: newTask.id,
             user_id: modifiedBy,  // Assuming `created_by` refers to the user creating the task
             timestamp: new Date()
@@ -79,7 +79,7 @@ exports.updateTask = async (req, res) => {
             // Add an audit log entry
             if (updatedFields.length > 0) {
                 await AuditLog.create({
-                    action: `Task Updated: ${updatedFields.join(', ')}`,
+                    action: `Task(${id}) Updated: ${updatedFields.join(', ')}`,
                     task_id: id,
                     user_id: modifiedBy,
                     timestamp: new Date()
@@ -104,7 +104,7 @@ exports.deleteTask = async (req, res) => {
         if (deleted) {
             // Add an audit log entry
             await AuditLog.create({
-                action: 'Task Deleted',
+                action: `Task(${id}) Deleted`,
                 task_id: id,
                 user_id: modifiedBy,
                 timestamp: new Date()

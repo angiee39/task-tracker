@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Task } from "@/lib/tasks"
+import { Task } from "../../../types/Task"
 import {ArrowUpDown, MoreHorizontal} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,24 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import {format, parseISO} from "date-fns";
+import Link from "next/link";
+import {useState} from "react";
+import {deleteTask} from "../../../services/task-service";
+import {toast} from "@/hooks/use-toast";
+import {useRouter} from "next/navigation";
+
 
 
 // This type is used to define the shape of our data.
@@ -101,26 +118,76 @@ export const columns: ColumnDef<Task>[] = [
         cell: ({ row }) => {
             const task = row.original
 
+            const router = useRouter();
+            const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+            const handleDelete = async () => {
+                try {
+                    const res = await deleteTask(task.id);
+                    if (res.isSuccess) {
+                        toast({
+                            description: "You have successfully deleted the task.",
+                        })
+                        router.push('/tasks');
+                    } else {
+                        toast({
+                            description: "There was an error deleting the task.",
+                        })
+                    }
+                } catch (error) {
+                    console.error(error);
+                    toast({
+                        description: "There was an error deleting the task.",
+                    })
+                }
+                setIsDeleteDialogOpen(false); // Close the dialog after deletion
+            };
+
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(task.id.toString())}
-                        >
-                            Copy Task Id
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>View customer</DropdownMenuItem>
-                        <DropdownMenuItem>View payment details</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem
+                                onClick={() => navigator.clipboard.writeText(task.id.toString())}
+                            >
+                                Copy Task Id
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <Link href={`/tasks/${task.id}`}>
+                                <DropdownMenuItem>Edit Task</DropdownMenuItem>
+                            </Link>
+                            <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)}>
+                                Delete Task
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                        <AlertDialogTrigger />
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure you want to delete this task?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>
+                                    Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDelete}>
+                                    Delete
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </>
             )
         },
     },

@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
-const Task = require('./Task');
 const User = require('./User');
 
 const AuditLog = sequelize.define('AuditLog', {
@@ -11,10 +10,12 @@ const AuditLog = sequelize.define('AuditLog', {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
     },
+    task_id: {
+        type: DataTypes.INTEGER,
+    },
 });
 
 // Define associations
-AuditLog.belongsTo(Task, { foreignKey: 'task_id' });
 AuditLog.belongsTo(User, { foreignKey: 'user_id' });
 
 module.exports = AuditLog;

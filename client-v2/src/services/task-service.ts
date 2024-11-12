@@ -2,7 +2,7 @@ import {resObject} from "@/lib/helpers";
 
 export const getAllTasks = async () => {
     try {
-        const res = await fetch('http://localhost:3003/' + 'api/tasks', {
+        const res = await fetch('http://localhost:3003/api/tasks', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

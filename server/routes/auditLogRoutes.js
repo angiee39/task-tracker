@@ -3,6 +3,6 @@ const auditLogController = require('../controllers/auditLogController');
 const router = express.Router();
 const authenticateToken = require('../middleware/authMiddleware');
 
-router.get('/audit-logs',authenticateToken, auditLogController.getAllAuditLogs);
+router.get('/audit-logs', auditLogController.getAllAuditLogs);
 
 module.exports = router;

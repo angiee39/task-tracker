@@ -39,9 +39,7 @@ import {useEffect, useState} from "react";
 import {getAllUsers} from "../../../services/user-service";
 
 const FormSchema = z.object({
-    id: z.number().min(1).max(3, {
-        message: "Status must be between 1 and 3.",
-    }),
+    id: z.number(),
     title: z.string().min(2, {
         message: "Title must be at least 2 characters.",
     }),
@@ -71,8 +69,6 @@ export function TaskEditForm() {
     const {user} = useUser();
     const [users, setUsers] = useState([]);
     const [assignee, setAssignee] = useState(null);
-
-    // console.log("TASKKKKKKKKKKKKKKKK", id)
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -120,33 +116,35 @@ export function TaskEditForm() {
         fetchData();
     }, []);
 
-
-    // useEffect(() => {
-    //     form.setValue('created_by', user?.id);
-    //     form.setValue('assigned_to', user?.id);
-    // }, [id, user, form]);
-
     function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log('data: ', data);
         handleUpdateTask(data);
     }
 
     const handleUpdateTask = async (formData: any) => {
-        const result = await updateTask(formData);
-        if (result.isSuccess) {
-            // Success toast msg
-            router.push('/tasks')
+        try {
+            const result = await updateTask(formData);
+            if (result.isSuccess) {
+                router.push('/tasks')
+                toast({
+                    title: "Task edited successfully.",
+                })
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "There was an error editing task.",
+                })
+            }
+        } catch (error) {
+            console.error(error);
             toast({
-                description: "Task edited successfully.",
-            })
-        } else {
-            toast({
-                description: "There was an error editing task.",
+                variant: "destructive",
+                title: "There was an error editing task.",
             })
         }
     };
 
-    console.log("FORM", form.getValues())
+    // console.log("FORM", form.getValues())
 
     return (
         <div>
@@ -187,7 +185,7 @@ export function TaskEditForm() {
                                 <FormLabel>Status</FormLabel>
                                 <FormControl>
                                     <Select
-                                        onValueChange={field.onChange}
+                                        onValueChange={(value) => field.onChange(Number(value))}
                                         value={field.value.toString()}
                                     >
                                         <SelectTrigger className="w-[180px]">
@@ -216,7 +214,7 @@ export function TaskEditForm() {
                                 <FormLabel>Priority</FormLabel>
                                 <FormControl>
                                     <Select
-                                        onValueChange={field.onChange}
+                                        onValueChange={(value) => field.onChange(Number(value))}
                                         value={field.value.toString()}
                                     >
                                         <SelectTrigger className="w-[180px]">

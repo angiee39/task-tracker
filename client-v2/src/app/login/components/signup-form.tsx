@@ -9,13 +9,14 @@ import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {createUser} from "../../../services/user-service";
+import {useRouter} from "next/navigation";
 
 const FormSchema = z.object({
     email: z.string().min(2, {
@@ -30,6 +31,8 @@ const FormSchema = z.object({
 })
 
 export function SignupForm() {
+    const router = useRouter();
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -41,9 +44,32 @@ export function SignupForm() {
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data)
-        toast({
-            title: "You submitted the following values:"
-        })
+        handleSignUp(data)
+    }
+
+    async function handleSignUp(data) {
+        console.log(data)
+        try {
+            const res = await createUser(data)
+            if (res.isSuccess) {
+                router.push('/login');
+                toast({
+                    title: "You have successfully signed up.",
+                    description: "Log in with the provided credentials to access your account.",
+                })
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "There was an error signing up.",
+                })
+            }
+        } catch (error) {
+            console.log(error)
+            toast({
+                variant: "destructive",
+                title: "There was an error signing up.",
+            })
+        }
     }
 
     return (
@@ -58,9 +84,6 @@ export function SignupForm() {
                             <FormControl>
                                 <Input placeholder="email@example.com" {...field} />
                             </FormControl>
-                            {/*<FormDescription>*/}
-                            {/*    This is your public display name.*/}
-                            {/*</FormDescription>*/}
                             <FormMessage />
                         </FormItem>
                     )}

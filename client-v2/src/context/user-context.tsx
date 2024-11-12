@@ -13,7 +13,7 @@ export const UserProvider = ({ children }) => {
         // Load user data from cookies on mount
         const storedUser = Cookies.get('user');
         if (storedUser) {
-            setUser(JSON.parse(storedUser)); // Parse the JSON string to get the user object
+            setUser(JSON.parse(storedUser));
         }
     }, []);
 
@@ -24,7 +24,7 @@ export const UserProvider = ({ children }) => {
 
     const updateUser = (newUserData) => {
         setUser(newUserData);
-        setUserInCookie(newUserData); // Update both state and cookie
+        setUserInCookie(newUserData);
     };
 
     return (
