@@ -1,3 +1,5 @@
+import {resObject} from "@/lib/helpers";
+
 export const loginUser = async (credentials: any) => {
     try {
         const res = await fetch('http://localhost:3003/' + 'api/login', {
@@ -10,23 +12,14 @@ export const loginUser = async (credentials: any) => {
         });
 
         if (!res.ok) {
-            return {
-                isSuccess: false,
-                data: null
-            }
+            return resObject(false);
         }
 
         const data = await res.json();
-        return {
-            isSuccess: true,
-            data: data
-        };
+        return resObject(true, data);
     } catch (error) {
         console.error('Error during login:', error);
-        return {
-            isSuccess: false,
-            data: null
-        }
+        return resObject(false);
     }
 };
 
@@ -40,17 +33,11 @@ export const logoutUser = async () => {
             }
         });
         if (res.ok) {
-            return {
-                isSuccess: true
-            }
+            return resObject(true)
         } else {
-            return {
-                isSuccess: false
-            }
+            return resObject(false)
         }
     } catch (error) {
-        return {
-            isSuccess: false
-        }
+        return resObject(false)
     }
 };

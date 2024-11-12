@@ -7,11 +7,10 @@ import { z } from "zod"
 import { format } from "date-fns"
 
 import { toast } from "@/hooks/use-toast"
-import {Button, buttonVariants} from "@/components/ui/button"
+import {Button} from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -29,9 +28,14 @@ import {
 } from "@/components/ui/select";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {cn} from "@/lib/utils";
-import {Calendar, CalendarIcon} from "lucide-react";
+import {CalendarIcon} from "lucide-react";
 import {Textarea} from "@/components/ui/textarea";
 import {dayPickerClassNames} from "@/lib/day-picker-class-names";
+import {useRouter} from "next/navigation";
+import {createTask} from "../../../services/task-service";
+import {useUser} from "@/context/user-context";
+import {useEffect, useState} from "react";
+import {getAllUsers} from "../../../services/user-service";
 
 const FormSchema = z.object({
     title: z.string().min(2, {
@@ -40,8 +44,8 @@ const FormSchema = z.object({
     description: z.string().min(5, {
         message: "Description must be at least 5 characters.",
     }),
-    status: z.enum(["todo", "inprogress", "done"], {
-        message: "Status must be one of: todo, inprogress, done.",
+    status: z.number().min(1).max(3, {
+        message: "Status must be between 1 and 3.",
     }),
     priority: z.number().min(1).max(3, {
         message: "Priority must be between 1 and 3.",
@@ -58,28 +62,56 @@ const FormSchema = z.object({
 })
 
 export function TaskCreateForm() {
+    const router = useRouter();
+    const {user} = useUser();
+    const [users, setUsers] = useState([]);
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             title: "",
             description: "",
-            status: "todo",
+            status: 1,
             priority: 2,
-            created_by: 1,
-            assigned_to: 1,
+            due_date: new Date(),
         },
     })
 
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const result = await getAllUsers();
+            if (result.isSuccess) {
+                setUsers(result.data);
+            }
+        };
+        fetchUsers();
+    }, [form.setValue]);
+
+
+    useEffect(() => {
+        form.setValue('created_by', user?.id);
+        form.setValue('assigned_to', user?.id);
+    }, [user, form]);
+
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-            ),
-        })
+        console.log('data: ', data);
+        handleCreate(data);
     }
+
+    const handleCreate = async (formData: any) => {
+        const result = await createTask(formData);
+        if (result.isSuccess) {
+            // Success toast msg
+            router.push('/tasks')
+            toast({
+                description: "Task created successfully.",
+            })
+        } else {
+            toast({
+                description: "There was an error creating task.",
+            })
+        }
+    };
 
     return (
         <div>
@@ -120,8 +152,8 @@ export function TaskCreateForm() {
                                 <FormLabel>Status</FormLabel>
                                 <FormControl>
                                     <Select
-                                        onValueChange={field.onChange} // Update the field value
-                                        value={field.value}            // Set the selected value from the form field
+                                        onValueChange={field.onChange}
+                                        value={field.value.toString()}
                                     >
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Select status" />
@@ -129,9 +161,9 @@ export function TaskCreateForm() {
                                         <SelectContent>
                                             <SelectGroup>
                                                 <SelectLabel>Status</SelectLabel>
-                                                <SelectItem value="todo">To-do</SelectItem>
-                                                <SelectItem value="inprogress">In Progress</SelectItem>
-                                                <SelectItem value="done">Done</SelectItem>
+                                                <SelectItem value="1">To-do</SelectItem>
+                                                <SelectItem value="2">In Progress</SelectItem>
+                                                <SelectItem value="3">Done</SelectItem>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
@@ -149,8 +181,8 @@ export function TaskCreateForm() {
                                 <FormLabel>Priority</FormLabel>
                                 <FormControl>
                                     <Select
-                                        onValueChange={field.onChange} // Update the field value
-                                        value={field.value.toString()}            // Set the selected value from the form field
+                                        onValueChange={field.onChange}
+                                        value={field.value.toString()}
                                     >
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Select priority" />
@@ -218,18 +250,20 @@ export function TaskCreateForm() {
                                 <FormLabel>Assign To</FormLabel>
                                 <FormControl>
                                     <Select
-                                        onValueChange={field.onChange} // Update the field value
-                                        value={field.value.toString()}            // Set the selected value from the form field
+                                        onValueChange={(value) => field.onChange(Number(value))}
+                                        value={field.value || user?.id || undefined}
                                     >
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Select Assignee" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectGroup>
-                                                <SelectLabel>Status</SelectLabel>
-                                                <SelectItem value="1">Me</SelectItem>
-                                                <SelectItem value="2">John</SelectItem>
-                                                <SelectItem value="3">Kim</SelectItem>
+                                                <SelectLabel>Assignees</SelectLabel>
+                                                {users.map((allUser) => (
+                                                    <SelectItem key={allUser.id} value={allUser.id}>
+                                                        {allUser.id === user?.id ? "Me" : allUser.name}
+                                                    </SelectItem>
+                                                ))}
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>

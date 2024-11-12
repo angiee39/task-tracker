@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -53,12 +52,19 @@ export function LoginForm() {
                 setUser(res.data.user);
                 localStorage.setItem('user', JSON.stringify(res.data.user));
                 router.push('/tasks');
-                // Success toast msg
+                toast({
+                    description: "You have successfully logged in.",
+                })
             } else {
-                // Error toast msg
+                toast({
+                    description: "There was an error logging in.",
+                })
             }
         } catch (error) {
             console.log(error)
+            toast({
+                description: "There was an error logging in.",
+            })
         }
     };
 

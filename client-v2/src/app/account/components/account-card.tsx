@@ -25,6 +25,7 @@ import {useUser} from "@/context/user-context";
 import {Checkbox} from "@/components/ui/checkbox";
 import {useRouter} from "next/navigation";
 import {logoutUser} from "../../../services/auth-service";
+import {toast} from "@/hooks/use-toast";
 
 export function AccountCard() {
     const { setUser, user } = useUser();
@@ -37,12 +38,19 @@ export function AccountCard() {
                 setUser(null);
                 localStorage.removeItem('user');
                 router.push('/login');
-                // Success toast
+                toast({
+                    description: "You have been successfully logged out.",
+                })
             } else {
-                // Error toast
+                toast({
+                    description: "There was an error logging out.",
+                })
             }
         } catch (error) {
-            // Error toast
+            console.log(error)
+            toast({
+                description: "There was an error logging out.",
+            })
         }
     };
 

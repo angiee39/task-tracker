@@ -2,6 +2,7 @@
 import "./globals.css";
 import { UserProvider } from '@/context/user-context';
 import NavBar from "./nav-bar";
+import {Toaster} from "@/components/ui/toaster";
 
 
 export default function RootLayout({ children }: any) {
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: any) {
                             {children}
                         </div>
                     </main>
+                    <Toaster />
                 </UserProvider>
             </body>
         </html>
