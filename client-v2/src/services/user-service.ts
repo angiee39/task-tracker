@@ -2,7 +2,7 @@ import {resObject} from "@/lib/helpers";
 
 export const getAllUsers = async () => {
     try {
-        const res = await fetch('http://localhost:3003/' + 'api/users', {
+        const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL_SERVER + 'api/users', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -21,7 +21,7 @@ export const getAllUsers = async () => {
 
 export const getUserById = async (id: number) => {
     try {
-        const res = await fetch('http://localhost:3003/' + `api/users/${id}`, {
+        const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL_SERVER + `api/users/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ export const getUserById = async (id: number) => {
 
 export const createUser = async (user: any) => {
     try {
-        const res = await fetch('http://localhost:3003/' + `api/users/`, {
+        const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL_SERVER + `api/users/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export const createUser = async (user: any) => {
 
 export const updateUser = async (user: any) => {
     try {
-        const res = await fetch('http://localhost:3003/' + `api/users/${user.id}`, {
+        const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL_SERVER + `api/users/${user.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

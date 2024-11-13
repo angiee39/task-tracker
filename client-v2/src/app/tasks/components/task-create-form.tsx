@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {cn} from "@/lib/utils";
-import {CalendarIcon} from "lucide-react";
+import {CalendarIcon, Loader2} from "lucide-react";
 import {Textarea} from "@/components/ui/textarea";
 import {dayPickerClassNames} from "@/lib/day-picker-class-names";
 import {useRouter} from "next/navigation";
@@ -36,6 +36,7 @@ import {createTask} from "../../../services/task-service";
 import {useUser} from "@/context/user-context";
 import {useEffect, useState} from "react";
 import {getAllUsers} from "../../../services/user-service";
+import {useMutation} from "@tanstack/react-query";
 
 const FormSchema = z.object({
     title: z.string().min(2, {
@@ -94,14 +95,15 @@ export function TaskCreateForm() {
     }, [user, form]);
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        handleCreate(data);
+        mutation.mutate(data);
     }
 
-    const handleCreate = async (formData: any) => {
-        try {
-            const result = await createTask(formData);
-            if (result.isSuccess) {
-                // Success toast msg
+    const mutation = useMutation({
+        mutationFn: (formData) => {
+            return createTask(formData);
+        },
+        onSuccess: (data, variables, context) => {
+            if (data.isSuccess) {
                 router.push('/tasks')
                 toast({
                     title: "Task created successfully.",
@@ -112,14 +114,15 @@ export function TaskCreateForm() {
                     title: "There was an error creating task.",
                 })
             }
-        } catch (error) {
+        },
+        onError: (error, variables, context) => {
             console.error(error);
             toast({
                 variant: "destructive",
                 title: "There was an error creating task.",
             })
-        }
-    };
+        },
+    })
 
     return (
         <div>
@@ -280,7 +283,16 @@ export function TaskCreateForm() {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit" disabled={mutation.isPending}>
+                        {mutation.isPending ? (
+                            <>
+                                <Loader2 className="animate-spin" />
+                                <span>Please wait</span>
+                            </>
+                        ) : (
+                            <span>Submit</span>
+                        )}
+                    </Button>
                 </form>
             </Form>
         </div>

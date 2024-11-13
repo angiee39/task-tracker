@@ -10,10 +10,5 @@ export function middleware(request: NextRequest) {
 }
 export const config = {
     // matcher: ['/account', '/tasks', '/logs'],
-    matcher: ['/tasks/:path*', '/account/:path*'],
+    matcher: ['/account/:path*', '/tasks/:path*', '/logs/:path*'],
 };
-
-// export function middleware(request: any) {
-//     console.log("middleware running")
-//     return NextResponse.next();
-// }

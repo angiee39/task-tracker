@@ -34,6 +34,8 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {updateUser} from "../../../services/user-service";
 import OneSignal from "react-onesignal";
+import {useMutation} from "@tanstack/react-query";
+import {Loader2} from "lucide-react";
 
 const FormSchema = z.object({
     id: z.number(),
@@ -62,12 +64,14 @@ export function AccountCard() {
     }, [user, form]);
 
 
-    const handleLogout = async () => {
-        try {
-            const res = await logoutUser();
-            if (res.isSuccess) {
-                // Remove one signal external ID to stop sending notifications
-                await OneSignal.logout()
+    const logoutMutation = useMutation({
+        mutationFn: () => {
+            return logoutUser();
+        },
+        onSuccess: (data, variables, context) => {
+            if (data.isSuccess) {
+                // Saving one signal external ID to send notifications to user
+                OneSignal.logout()
                 setUser(null);
                 router.push('/login');
                 toast({
@@ -79,22 +83,23 @@ export function AccountCard() {
                     title: "There was an error logging out.",
                 })
             }
-        } catch (error) {
+        },
+        onError: (error, variables, context) => {
             console.log(error)
             toast({
                 variant: "destructive",
                 title: "There was an error logging out.",
             })
-        }
-    };
+        },
+    })
 
-    console.log(form.getValues())
-
-    const handleUserUpdate = async (data) => {
-        try {
-            const res = await updateUser(data);
-            if (res.isSuccess) {
-                setUser(res.data);
+    const userMutation = useMutation({
+        mutationFn: (formData) => {
+            return updateUser(formData);
+        },
+        onSuccess: (data, variables, context) => {
+            if (data.isSuccess) {
+                setUser(data.data);
                 toast({
                     title: "You have successfully updated your account.",
                 })
@@ -106,7 +111,8 @@ export function AccountCard() {
                     title: "There was an error updating your account.",
                 })
             }
-        } catch (error) {
+        },
+        onError: (error, variables, context) => {
             form.setValue('name', user?.name);
             form.setValue('notification', user?.notification);
             console.log(error)
@@ -114,12 +120,11 @@ export function AccountCard() {
                 variant: "destructive",
                 title: "There was an error updating your account.",
             })
-        }
-    };
+        },
+    })
 
     const onSubmit = (data) => {
-        console.log(data);
-        handleUserUpdate(data);
+        userMutation.mutate(data);
     };
 
     return (
@@ -174,10 +179,28 @@ export function AccountCard() {
                     </CardContent>
                     <CardFooter className="flex justify-between">
                         {/* Submit button outside the form */}
-                        <Button type="submit" variant="outline">Save</Button>
+                        <Button type="submit" variant="outline" disabled={userMutation.isPending}>
+                            {userMutation.isPending ? (
+                                <>
+                                    <Loader2 className="animate-spin" />
+                                    <span>Please wait</span>
+                                </>
+                            ) : (
+                                <span>Save</span>
+                            )}
+                        </Button>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button>Logout</Button>
+                                <Button disabled={logoutMutation.isPending}>
+                                    {logoutMutation.isPending ? (
+                                        <>
+                                            <Loader2 className="animate-spin" />
+                                            <span>Please wait</span>
+                                        </>
+                                    ) : (
+                                        <span>Logout</span>
+                                    )}
+                                </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -188,7 +211,7 @@ export function AccountCard() {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleLogout()}>Continue</AlertDialogAction>
+                                    <AlertDialogAction onClick={() => logoutMutation.mutate()}>Continue</AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>

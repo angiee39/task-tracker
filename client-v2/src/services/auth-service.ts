@@ -2,7 +2,7 @@ import {resObject} from "@/lib/helpers";
 
 export const loginUser = async (credentials: any) => {
     try {
-        const res = await fetch('http://localhost:3003/' + 'api/login', {
+        const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL_SERVER + 'api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ export const loginUser = async (credentials: any) => {
 
 export const logoutUser = async () => {
     try {
-        const res = await fetch('http://localhost:3003/api/logout', {
+        const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL_SERVER + 'api/logout', {
             method: 'POST',
             credentials: 'include',
             headers: {

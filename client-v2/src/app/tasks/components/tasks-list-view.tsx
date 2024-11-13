@@ -14,14 +14,22 @@ async function getData(): Promise<Task[]> {
 export default async function TasksListView() {
 
     const data = await getData()
+
     return (
         <div className="container mx-auto py-10">
             <Link href="/tasks/create">
                 <Button>
-                    <ListChecks /> Create New Task
+                    <ListChecks/> Create New Task
                 </Button>
             </Link>
-            <DataTable columns={columns} data={data} />
+
+            {data ? (
+                <DataTable columns={columns} data={data}/>
+            ) : (
+                <div className="text-center py-10">
+                    <p>No tasks available</p>
+                </div>
+            )}
         </div>
     )
 }

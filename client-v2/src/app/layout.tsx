@@ -5,8 +5,13 @@ import NavBar from "./nav-bar";
 import {Toaster} from "@/components/ui/toaster";
 import OneSignal from 'react-onesignal';
 import {useEffect} from "react";
+import {QueryClient} from "@tanstack/query-core";
+import {QueryClientProvider} from "@tanstack/react-query";
 
 export default function RootLayout({ children }: any) {
+    const queryClient = new QueryClient()
+
+
     // One Signal push and email notifications
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -19,17 +24,20 @@ export default function RootLayout({ children }: any) {
             });
         }
     }, []);
+
     return (
         <html lang="en">
             <body>
                 <UserProvider>
-                    <NavBar />
-                    <main>
-                        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 flex justify-center items-center">
-                            {children}
-                        </div>
-                    </main>
-                    <Toaster />
+                    <QueryClientProvider client={queryClient}>
+                        <NavBar />
+                        <main>
+                            <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 flex justify-center items-center">
+                                {children}
+                            </div>
+                        </main>
+                        <Toaster />
+                    </QueryClientProvider>
                 </UserProvider>
             </body>
         </html>

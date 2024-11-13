@@ -2,7 +2,7 @@ import {resObject} from "@/lib/helpers";
 
 export const getAllTasks = async () => {
     try {
-        const res = await fetch('http://localhost:3003/api/tasks', {
+        const res = await fetch( process.env.NEXT_PUBLIC_BASE_URL_SERVER +'api/tasks', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -21,7 +21,7 @@ export const getAllTasks = async () => {
 
 export const getTaskById = async (id: number) => {
     try {
-        const res = await fetch('http://localhost:3003/' + `api/tasks/${id}`, {
+        const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL_SERVER + `api/tasks/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ export const getTaskById = async (id: number) => {
 
 export const createTask = async (task: any) => {
     try {
-        const res = await fetch('http://localhost:3003/' + 'api/tasks', {
+        const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL_SERVER + 'api/tasks', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export const createTask = async (task: any) => {
 
 export const updateTask = async (task: any) => {
     try {
-        const res = await fetch('http://localhost:3003/' + `api/tasks/${task.id}`, {
+        const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL_SERVER + `api/tasks/${task.id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ export const updateTask = async (task: any) => {
 
 export const deleteTask = async (id: number) => {
     try {
-        const res = await fetch('http://localhost:3003/' + `api/tasks/${id}`, {
+        const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL_SERVER + `api/tasks/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

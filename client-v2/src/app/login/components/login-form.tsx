@@ -20,6 +20,8 @@ import {
 import { Input } from "@/components/ui/input"
 import {loginUser} from "../../../services/auth-service";
 import OneSignal from "react-onesignal";
+import {useMutation} from "@tanstack/react-query";
+import {Loader2} from "lucide-react";
 
 const FormSchema = z.object({
     email: z.string().min(2, {
@@ -42,18 +44,16 @@ export function LoginForm() {
         },
     })
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        handleLogin(data)
-    }
-
-    const handleLogin = async (credentials) => {
-        try {
-            const res = await loginUser(credentials);
-            if (res.isSuccess) {
+    const mutation = useMutation({
+        mutationFn: (formData) => {
+            return loginUser(formData);
+        },
+        onSuccess: (data, variables, context) => {
+            if (data.isSuccess) {
                 // Saving one signal external ID to send notifications to user
-                await OneSignal.login(res.data.user.id.toString());
-                setUser(res.data.user);
-                localStorage.setItem('user', JSON.stringify(res.data.user));
+                OneSignal.login(data.data.user.id.toString());
+                setUser(data.data.user);
+                localStorage.setItem('user', JSON.stringify(data.data.user));
                 router.push('/tasks');
                 toast({
                     title: "You have successfully logged in.",
@@ -64,14 +64,19 @@ export function LoginForm() {
                     title: "There was an error logging in.",
                 })
             }
-        } catch (error) {
+        },
+        onError: (error, variables, context) => {
             console.log(error)
             toast({
                 variant: "destructive",
                 title: "There was an error logging in.",
             })
-        }
-    };
+        },
+    })
+
+    function onSubmit(data: z.infer<typeof FormSchema>) {
+        mutation.mutate(data)
+    }
 
     return (
         <Form {...form}>
@@ -105,7 +110,16 @@ export function LoginForm() {
                         </FormItem>
                     )}
                 />
-                <Button type="submit">Submit</Button>
+                <Button type="submit" disabled={mutation.isPending}>
+                    {mutation.isPending ? (
+                        <>
+                            <Loader2 className="animate-spin" />
+                            <span>Please wait</span>
+                        </>
+                    ) : (
+                        <span>Submit</span>
+                    )}
+                </Button>
             </form>
         </Form>
     )

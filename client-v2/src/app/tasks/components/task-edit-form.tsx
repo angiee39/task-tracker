@@ -29,7 +29,7 @@ import {
 
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {cn} from "@/lib/utils";
-import {CalendarIcon} from "lucide-react";
+import {CalendarIcon, Loader2} from "lucide-react";
 import {Textarea} from "@/components/ui/textarea";
 import {dayPickerClassNames} from "@/lib/day-picker-class-names";
 import {useParams, useRouter} from "next/navigation";
@@ -37,6 +37,7 @@ import {getTaskById, updateTask} from "../../../services/task-service";
 import {useUser} from "@/context/user-context";
 import {useEffect, useState} from "react";
 import {getAllUsers} from "../../../services/user-service";
+import {useMutation} from "@tanstack/react-query";
 
 const FormSchema = z.object({
     id: z.number(),
@@ -117,14 +118,15 @@ export function TaskEditForm() {
     }, []);
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log('data: ', data);
-        handleUpdateTask(data);
+        mutation.mutate(data);
     }
 
-    const handleUpdateTask = async (formData: any) => {
-        try {
-            const result = await updateTask(formData);
-            if (result.isSuccess) {
+    const mutation = useMutation({
+        mutationFn: (formData) => {
+            return updateTask(formData);
+        },
+        onSuccess: (data, variables, context) => {
+            if (data.isSuccess) {
                 router.push('/tasks')
                 toast({
                     title: "Task edited successfully.",
@@ -135,16 +137,15 @@ export function TaskEditForm() {
                     title: "There was an error editing task.",
                 })
             }
-        } catch (error) {
+        },
+        onError: (error, variables, context) => {
             console.error(error);
             toast({
                 variant: "destructive",
                 title: "There was an error editing task.",
             })
-        }
-    };
-
-    // console.log("FORM", form.getValues())
+        },
+    })
 
     return (
         <div>
@@ -306,7 +307,16 @@ export function TaskEditForm() {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit">
+                        {mutation.isPending ? (
+                            <>
+                                <Loader2 className="animate-spin" />
+                                <span>Please wait</span>
+                            </>
+                        ) : (
+                            <span>Submit</span>
+                        )}
+                    </Button>
                 </form>
             </Form>
         </div>
