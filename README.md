@@ -58,6 +58,23 @@ To run the application locally using Docker, follow the steps below:
 
 ![img_6.png](img_6.png)
 
+## Notifications
+
+The application integrates with **OneSignal** to send real-time notifications, such as task reminders and alerts. If you'd like to set up your own OneSignal account for notifications:
+
+1. Follow the [OneSignal Web SDK Setup Documentation](https://documentation.onesignal.com/docs/web-sdk-setup).
+2. Replace the current OneSignal **App ID** and **API key** with your own in the `.env` file or where specified in the code.
+
+To send notifications in the task tracker, use the following API endpoint:
+
+**Endpoint**: `POST /server/api/send-notifications`
+ 
+0.
+   ```bash
+   {
+      "message": "test",
+      "userIds": [3, 5]
+   }
 
 ## Tech Stack
 
