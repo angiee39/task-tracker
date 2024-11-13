@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const { Op } = require('sequelize');
-const Task = require('../models/task'); // Assuming Task model is located in models folder
+const Task = require('../models/Task');
 const axios = require('axios');
 
 const BASE_SERVER_URL = process.env.BASE_SERVER_URL;

@@ -68,7 +68,7 @@ export function AccountCard() {
         mutationFn: () => {
             return logoutUser();
         },
-        onSuccess: (data, variables, context) => {
+        onSuccess: (data) => {
             if (data.isSuccess) {
                 // Saving one signal external ID to send notifications to user
                 OneSignal.logout()
@@ -84,7 +84,7 @@ export function AccountCard() {
                 })
             }
         },
-        onError: (error, variables, context) => {
+        onError: (error) => {
             console.log(error)
             toast({
                 variant: "destructive",
@@ -97,7 +97,7 @@ export function AccountCard() {
         mutationFn: (formData) => {
             return updateUser(formData);
         },
-        onSuccess: (data, variables, context) => {
+        onSuccess: (data) => {
             if (data.isSuccess) {
                 setUser(data.data);
                 toast({
@@ -112,7 +112,7 @@ export function AccountCard() {
                 })
             }
         },
-        onError: (error, variables, context) => {
+        onError: (error) => {
             form.setValue('name', user?.name);
             form.setValue('notification', user?.notification);
             console.log(error)

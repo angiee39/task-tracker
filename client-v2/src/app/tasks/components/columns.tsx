@@ -108,7 +108,7 @@ export const columns: ColumnDef<Task>[] = [
             )
         },
         cell: ({ row }) => {
-            const value: any = row.getValue("due_date");
+            const value = row.getValue("due_date");
             const date = parseISO(value);
             return format(date, "dd/MM/yy HH:mm");
         }

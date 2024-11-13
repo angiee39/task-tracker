@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  # Next.js frontend
+  frontend:
+    build:
+      context: ./client-v2  # Path to your Next.js app folder
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./client-v2/.env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+      - postgres
+    networks:
+      - app-network
+
+  # Express backend
+  backend:
+    build:
+      context: ./server  # Path to your Express app folder
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgres
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dev123
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:

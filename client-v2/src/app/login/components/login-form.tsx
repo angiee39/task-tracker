@@ -48,7 +48,7 @@ export function LoginForm() {
         mutationFn: (formData) => {
             return loginUser(formData);
         },
-        onSuccess: (data, variables, context) => {
+        onSuccess: (data) => {
             if (data.isSuccess) {
                 // Saving one signal external ID to send notifications to user
                 OneSignal.login(data.data.user.id.toString());
@@ -65,7 +65,7 @@ export function LoginForm() {
                 })
             }
         },
-        onError: (error, variables, context) => {
+        onError: (error) => {
             console.log(error)
             toast({
                 variant: "destructive",
