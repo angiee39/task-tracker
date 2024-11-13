@@ -46,5 +46,5 @@ cron.schedule('0 */2 * * *', () => {
     checkTasksAndSendNotifications();
 });
 
-// Running cron job immediately after server starts
-checkTasksAndSendNotifications();
+// Uncomment to run cron job immediately after server starts
+// checkTasksAndSendNotifications();

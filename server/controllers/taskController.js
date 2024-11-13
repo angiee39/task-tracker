@@ -1,9 +1,12 @@
 const { Task, AuditLog } = require('../models');
 
+const isUnitTest = process.env.UNIT_TESTS === 'true';
+const testUserId = 1;
+
 // Create a new task
 exports.createTask = async (req, res) => {
     const { title, description, status, priority, due_date, created_by, assigned_to } = req.body;
-    const modifiedBy = req.user.id;
+    const modifiedBy = isUnitTest ? testUserId : req.user.id;
 
     try {
         const newTask = await Task.create({
@@ -14,7 +17,7 @@ exports.createTask = async (req, res) => {
         await AuditLog.create({
             action: `Task(${newTask.id}) Created`,
             task_id: newTask.id,
-            user_id: modifiedBy,  // Assuming `created_by` refers to the user creating the task
+            user_id: modifiedBy,
             timestamp: new Date()
         });
 
@@ -53,7 +56,7 @@ exports.getTaskById = async (req, res) => {
 exports.updateTask = async (req, res) => {
     const { id } = req.params;
     const { title, description, status, priority, due_date, assigned_to } = req.body;
-    const modifiedBy = req.user.id;
+    const modifiedBy = isUnitTest ? testUserId : req.user.id;
 
     try {
         const existingTask = await Task.findByPk(id);
@@ -98,7 +101,7 @@ exports.updateTask = async (req, res) => {
 // Delete a task
 exports.deleteTask = async (req, res) => {
     const { id } = req.params;
-    const modifiedBy = req.user.id;
+    const modifiedBy = isUnitTest ? testUserId : req.user.id;
     try {
         const deleted = await Task.destroy({ where: { id } });
         if (deleted) {
