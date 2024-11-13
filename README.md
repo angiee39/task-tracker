@@ -116,4 +116,21 @@ To run the application locally using Docker, follow the steps below:
 - **Maintainability**: The clear separation of front-end and back-end responsibilities, along with TypeScript’s static typing, leads to cleaner, more maintainable code.
 
 
-## How to Run unit tests
+## Authentication and Authorization
+
+The application uses **cookie-based authentication** to manage user sessions and protect routes from unauthorized access. Upon successful login, a JWT token is sent via cookies, ensuring that only authenticated users can access protected resources and pages.
+
+- **Password Hashing**: Passwords are securely stored using **bcryptjs**. During user registration and login, passwords are hashed before being saved in the database, providing an additional layer of security.
+
+## How to Run Unit Tests
+
+The application uses **Jest** and **Supertest** for unit testing the backend APIs.
+
+- **Jest**: A testing framework for JavaScript that allows you to write simple, flexible, and powerful tests for various parts of the application.
+- **Supertest**: An HTTP assertions library used alongside Jest to test API endpoints by simulating HTTP requests.
+
+To run the tests locally:
+
+1. Make UNIT_TESTS=false in the .env file and in the root of server folder, run:
+   ```bash
+   npm run test
